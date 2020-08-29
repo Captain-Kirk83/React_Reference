@@ -18,7 +18,7 @@ import { Control, LocalForm, Errors } from 'react-redux-form';
         );
     }
 
-    function RenderComments({comments}){
+    function RenderComments({comments, addComment, dishId}){
         const com=comments.map((comment) => {
             return(
                 <div>
@@ -35,7 +35,7 @@ import { Control, LocalForm, Errors } from 'react-redux-form';
         return (
             <div>
                 {com}
-                <CommentForm />
+                <CommentForm dishId={dishId} addComment={addComment} />
             </div>
             
         );
@@ -64,7 +64,7 @@ import { Control, LocalForm, Errors } from 'react-redux-form';
                         
                             <h4>Comments</h4>
                         
-                            <RenderComments comments={props.comments} />
+                            <RenderComments comments={props.comments} addComment={props.addComment} dishId={props.dish.id} />
                         </div>
                     </div>
                 </div>
@@ -90,11 +90,13 @@ import { Control, LocalForm, Errors } from 'react-redux-form';
             this.state={
                 isComOpen: false
             };
+            
             this.toggleCom = this.toggleCom.bind(this);
             this.handleComment=this.handleComment.bind(this);
         }
 
-        handleComment(event){
+        handleComment(values){
+            this.props.addComment(this.props.dishId, values.rating, values.author, values.comment);
             this.toggleCom();
         }
 
@@ -110,7 +112,7 @@ import { Control, LocalForm, Errors } from 'react-redux-form';
                         <ModalHeader toggle={this.toggleCom}>Submit Comment</ModalHeader>
                         <ModalBody>
                             <div className="col-12">
-                                <LocalForm onSubmit={this.handleComment}>
+                                <LocalForm onSubmit={(values)=>this.handleComment(values)}>
                                     <Row className="form-group">
                                         <Label htmlFor="rating">Rating</Label>
                                         <Control.select model=".rating" name="rating" className="form-control">
@@ -123,19 +125,21 @@ import { Control, LocalForm, Errors } from 'react-redux-form';
 
                                     </Row>
                                     <Row className="form-group">
-                                        <Label htmlFor="yourname">Your Name</Label>
-                                        <Control.text model=".yourname" id="yourname" name="yourname" className="form-control" validators={{min:min(3), max:max(15)}} />
-                                        <Errors className="text-danger" model=".yourname" show="touched" messages={{min: 'Must be greater than 2 characters', max: 'Must be 15 characters or less'}} />
+                                        <Label htmlFor="author">Your Name</Label>
+                                        <Control.text model=".author" id="author" name="author" className="form-control" validators={{min:min(3), max:max(15)}} />
+                                        <Errors className="text-danger" model=".author" show="touched" messages={{min: 'Must be greater than 2 characters', max: 'Must be 15 characters or less'}} />
                                     </Row>
                                     <Row className="form-group">
                                         <Label htmlFor="comment">Comment</Label>
                                         <Control.textarea model=".comment" id="comment" name="comment" row="6" className="form-control" />
                                     </Row>
-                                    
+                                    <Row className="form-group">
+                                        <Button type="submit" value="submit" color="primary">Submit</Button>
+                                    </Row>
                                 </LocalForm>
                                 
                             </div>
-                            <Button type="submit" value="submit" color="primary">Submit</Button>
+                            
                         </ModalBody>
                     </Modal>
                     <Button outline onClick={this.toggleCom}><span className="fa fa-pencil fa-lg"></span>Submit Comment</Button>
